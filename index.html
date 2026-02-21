@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kira Image Ideation Sandbox</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-elevated: #141414;
+            --bg-card: #1a1a1a;
+            --border: #2a2a2a;
+            --text: #e0e0e0;
+            --text-muted: #888;
+            --accent: #4ade80;
+            --accent-dim: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        h1 { font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; }
+        .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+        
+        .workflow {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 1000px) {
+            .workflow { grid-template-columns: 1fr; }
+        }
+        
+        .stage {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .stage-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .stage-number {
+            width: 28px; height: 28px;
+            background: var(--accent-dim);
+            color: var(--bg);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 600;
+        }
+        .stage-title { font-weight: 500; }
+        .stage-status {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        textarea, input[type="text"] {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-dim);
+        }
+        textarea { min-height: 120px; }
+        
+        .kira-analysis {
+            background: var(--bg);
+            border-left: 3px solid var(--accent);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9rem;
+        }
+        .kira-analysis h4 {
+            color: var(--accent);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+        .critique-item {
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+        }
+        .critique-item.good { border-left: 2px solid var(--accent); }
+        .critique-item.issue { border-left: 2px solid var(--warning); }
+        .critique-item.fix { border-left: 2px solid var(--error); }
+        
+        .prompt-breakdown {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            background: var(--bg);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        .prompt-section {
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(74, 222, 128, 0.05);
+            border-radius: 4px;
+        }
+        .prompt-section.label { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; }
+        
+        button {
+            background: var(--accent-dim);
+            color: var(--bg);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .image-result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .image-result img {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .comparison-item {
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        .comparison-item h5 { color: var(--accent); margin-bottom: 8px; }
+        
+        .collab-note {
+            background: rgba(74, 222, 128, 0.08);
+            border: 1px solid var(--accent-dim);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        .collab-note strong { color: var(--accent); }
+        
+        .full-width { grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kira Image Ideation Sandbox</h1>
+            <div class="subtitle">Collaborate on ideas → writing → prompts → images → critique</div>
+        </header>
+        
+        <div class="workflow">
+            <!-- STAGE 1: IDEA -->
+            <div class="stage">
+                <div class="stage-header">
+                    <div class="stage-number">1</div>
+                    <div class="stage-title">The Idea</div>
+                    <div class="stage-status">Input</div>
+                </div>
+                <input type="text" id="idea-title" placeholder="Give it a name (e.g., 'Living Building Facade')">
+                <textarea id="idea-concept" placeholder="Describe the concept, system, or structure you want to visualize. What is it? What does it do? Why does it exist?
+
+Example: A building facade made of transparent bioreactor panels with algae cultures circulating inside. The facade is alive, changing color as the algae density varies."></textarea>
+                <button onclick="analyzeIdea()">Analyze & Develop</button>
+                
+                <div id="idea-analysis" class="kira-analysis" style="display:none;">
+                    <h4>Kira's Analysis</h4>
+                    <div id="idea-critique"></div>
+                </div>
+            </div>
+            
+            <!-- STAGE 2: WRITING -->
+            <div class="stage">
+                <div class="stage-header">
+                    <div class="stage-number">2</div>
+                    <div class="stage-title">The Writing</div>
+                    <div class="stage-status">Development</div>
+                </div>
+                <textarea id="draft-writing" placeholder="Your draft text for X/Twitter...
+
+This develops the idea into a compelling narrative. What's the tension? What's at stake? What should someone understand after reading?"></textarea>
+                <button onclick="refineWriting()">Get Refinements</button>
+                
+                <div id="writing-analysis" class="kira-analysis" style="display:none;">
+                    <h4>Kira's Suggestions</h4>
+                    <div id="writing-critique"></div>
+                </div>
+            </div>
+            
+            <!-- STAGE 3: PROMPT CONSTRUCTION -->
+            <div class="stage full-width">
+                <div class="stage-header">
+                    <div class="stage-number">3</div>
+                    <div class="stage-title">The Image Prompt</div>
+                    <div class="stage-status">Construction</div>
+                </div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div>
+                        <label style="display:block; margin-bottom:8px; color:var(--text-muted); font-size:0.85rem;">Style Framework</label>
+                        <select id="prompt-style" style="width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:6px;">
+                            <option value="architectural">Architectural (Dezeen/Domus aesthetic)</option>
+                            <option value="photograph">Documentary (Places Journal/NatGeo)</option>
+                            <option value="render">CGI Render (Competition board)</option>
+                            <option value="organic">Scientific Illustration</option>
+                            <option value="concept">Speculative Design</option>
+                        </select>
+                        
+                        <label style="display:block; margin:15px 0 8px; color:var(--text-muted); font-size:0.85rem;">Publication Target</label>
+                        <input type="text" id="publication-target" placeholder="e.g., 'Landscape Architecture Magazine'" style="margin-bottom:15px;">
+                        
+                        <label style="display:block; margin-bottom:8px; color:var(--text-muted); font-size:0.85rem;">Cinematic Specs (Optional)</label>
+                        <input type="text" id="kelvin-temp" placeholder="Kelvin (e.g., 4200K)" style="width:48%; display:inline-block; margin-right:4%;">
+                        <input type="text" id="key-fill-ratio" placeholder="Key:Fill (e.g., 1:8)" style="width:48%; display:inline-block;">
+                    </div>
+                    
+                    <div>
+                        <label style="display:block; margin-bottom:8px; color:var(--text-muted); font-size:0.85rem;">Constructed Prompt</label>
+                        <textarea id="final-prompt" style="min-height:200px;" placeholder="The complete prompt will appear here after construction..."></textarea>
+                        <button onclick="constructPrompt()" style="margin-top:10px;">Construct Prompt</button>
+                        <button onclick="critiquePrompt()" style="margin-left:10px; background:transparent; border:1px solid var(--accent); color:var(--accent);">Critique</button>
+                    </div>
+                </div>
+                
+                <div id="prompt-analysis" class="kira-analysis" style="display:none;">
+                    <h4>Prompt Critique</h4>
+                    <div id="prompt-critique"></div>
+                </div>
+            </div>
+            
+            <!-- STAGE 4: GENERATION -->
+            <div class="stage full-width">
+                <div class="stage-header">
+                    <div class="stage-number">4</div>
+                    <div class="stage-title">Generate & Critique</div>
+                    <div class="stage-status">Execution</div>
+                </div>
+                
+                <button onclick="generateImage()" id="gen-btn" style="font-size:1.1rem; padding:15px 30px;">Generate Image</button>
+                <span id="gen-status" style="margin-left:15px; color:var(--text-muted);"></span>
+                
+                <div class="comparison-grid" id="result-section" style="display:none;">
+                    <div class="comparison-item">
+                        <h5>What We Asked For</h5>
+                        <div id="asked-for" style="font-size:0.8rem; color:var(--text-muted);"></div>
+                    </div>
+                    <div class="comparison-item">
+                        <h5>What Gemini Delivered</h5>
+                        <div id="delivered-notes" style="font-size:0.8rem; color:var(--text-muted);">Pending...</div>
+                    </div>
+                </div>
+                
+                <div id="image-result" class="image-result"></div>
+                
+                <div id="image-critique" class="kira-analysis" style="display:none; margin-top:20px;">
+                    <h4>Image Critique & Next Steps</h4>
+                    <div id="image-critique-content"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="collab-note">
+            <strong>How We Collaborate:</strong> You bring the seed idea. I help develop it, construct the prompt using the framework, and we iterate on the results. Each stage has my analysis — what works, what risks failure, what to change. The goal: images that feel buildable, not generic sci-fi.
+        </div>
+    </div>
+    
+    <script>
+        // Kira's analysis functions
+        function analyzeIdea() {
+            const concept = document.getElementById('idea-concept').value;
+            const analysis = document.getElementById('idea-analysis');
+            const critique = document.getElementById('idea-critique');
+            
+            if (!concept.trim()) {
+                alert('Enter a concept first');
+                return;
+            }
+            
+            // Simulated analysis - in real version, this would call Kira
+            critique.innerHTML = `
+                <div class="critique-item good">✓ Concept has physical specificity — can describe what a camera points at</div>
+                <div class="critique-item issue">⚠ Consider: What material is the structure made from? (concrete, timber, earth?)</div>
+                <div class="critique-item issue">⚠ Consider: What time of day? Lighting defines the mood.</div>
+                <div class="critique-item fix">→ Add: Why does this exist? The "this exists because" sentence unlocks narrative intent</div>
+            `;
+            analysis.style.display = 'block';
+        }
+        
+        function refineWriting() {
+            const draft = document.getElementById('draft-writing').value;
+            const analysis = document.getElementById('writing-analysis');
+            const critique = document.getElementById('writing-critique');
+            
+            if (!draft.trim()) {
+                alert('Enter draft writing first');
+                return;
+            }
+            
+            critique.innerHTML = `
+                <div class="critique-item good">✓ Opening has tension — draws reader in</div>
+                <div class="critique-item issue">⚠ Line 3 is abstract — "systemic transformation" doesn't show</div>
+                <div class="critique-item fix">→ Try: Replace with a specific physical detail someone could see</div>
+                <div class="critique-item fix">→ Consider: What's the implication, not just the finding?</div>
+            `;
+            analysis.style.display = 'block';
+        }
+        
+        function constructPrompt() {
+            const idea = document.getElementById('idea-concept').value;
+            const style = document.getElementById('prompt-style').value;
+            const publication = document.getElementById('publication-target').value || 'Dezeen';
+            const kelvin = document.getElementById('kelvin-temp').value;
+            const ratio = document.getElementById('key-fill-ratio').value;
+            
+            // Build the prompt
+            let prompt = `SUBJECT_A = "${idea.substring(0, 300)}..."
+
+LOCATION_B = "[Add specific setting: urban, rural, climate, surrounding context]"
+
+LIGHTING_C = "${kelvin || '5500K'} daylight${ratio ? ', ' + ratio + ' key-to-fill ratio' : ''}. [Add direction and quality: soft diffused, harsh shadows, etc.]"
+
+CAM_SETTINGS = "[Lens + aperture + film stock: e.g., 35mm at f/8, Kodak Portra 400]"
+
+Render SUBJECT_A in LOCATION_B. Apply LIGHTING_C. Use CAM_SETTINGS. This exists because [add design intent]. Photographed for ${publication}.
+
+NEGATIVE: [add unwanted elements to exclude]`;
+            
+            document.getElementById('final-prompt').value = prompt;
+        }
+        
+        function critiquePrompt() {
+            const prompt = document.getElementById('final-prompt').value;
+            const analysis = document.getElementById('prompt-analysis');
+            const critique = document.getElementById('prompt-critique');
+            
+            critique.innerHTML = `
+                <div class="critique-item good">✓ JSON variable format — separates subject/location/lighting/camera</div>
+                <div class="critique-item good">✓ Publication target specified — unlocks editorial conventions</div>
+                <div class="critique-item issue">⚠ NEGATIVE block is empty — what should Gemini avoid?</div>
+                <div class="critique-item fix">→ Add to NEGATIVE: generic sci-fi aesthetic, fiber optic cables, glowing orbs, clean chrome</div>
+            `;
+            analysis.style.display = 'block';
+        }
+        
+        async function generateImage() {
+            const prompt = document.getElementById('final-prompt').value;
+            const btn = document.getElementById('gen-btn');
+            const status = document.getElementById('gen-status');
+            const resultSection = document.getElementById('result-section');
+            const imageResult = document.getElementById('image-result');
+            const critique = document.getElementById('image-critique');
+            
+            if (!prompt.trim()) {
+                alert('Construct a prompt first');
+                return;
+            }
+            
+            btn.disabled = true;
+            status.textContent = 'Generating (45-60s)...';
+            
+            // Show what we asked for
+            document.getElementById('asked-for').textContent = prompt.substring(0, 400) + '...';
+            resultSection.style.display = 'grid';
+            
+            // In the real implementation, this would call the imagine.js API
+            // For now, simulate the delay and show a placeholder result
+            setTimeout(() => {
+                status.textContent = 'Done';
+                btn.disabled = false;
+                
+                imageResult.innerHTML = `
+                    <div style="padding:60px; background:var(--bg); border-radius:8px; border:1px dashed var(--border);">
+                        <p style="color:var(--text-muted);">[Image would appear here]</p>
+                        <p style="font-size:0.85rem; margin-top:10px;">In full implementation: calls imagine.js generate API</p>
+                    </div>
+                `;
+                
+                document.getElementById('delivered-notes').textContent = 'Image generated. Analyze for fidelity to prompt.';
+                
+                critique.querySelector('#image-critique-content').innerHTML = `
+                    <div class="critique-item good">✓ Materiality rendered accurately — surface texture visible</div>
+                    <div class="critique-item issue">⚠ Human scale unclear — add figures for proportion reference</div>
+                    <div class="critique-item fix">→ Iterate: Add "two residents at the entrance, unposed" to prompt</div>
+                `;
+                critique.style.display = 'block';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

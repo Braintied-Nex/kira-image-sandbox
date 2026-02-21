@@ -1,0 +1,11 @@
+{
+  "name": "kira-image-sandbox",
+  "version": "1.0.0",
+  "description": "Interactive ideation sandbox for Kira image collaboration",
+  "scripts": {
+    "deploy": "wrangler pages deploy . --project-name=kira-image-sandbox --branch=main"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
